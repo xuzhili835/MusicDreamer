@@ -1,0 +1,47 @@
+# 构建产物
+*/target/
+
+# 本地媒体工具与模型（fetch-tools.js 拉取，清单在 tools.manifest.json）
+# 二进制不进 Git（ffmpeg.exe 133MB 超 GitHub 100MB 单文件上限，推送会被直接拒绝）
+tools/apache-maven-*/
+tools/m2-repo/
+tools/*.zip
+tools/yt-dlp*
+tools/ffmpeg/
+tools/whisper/
+tools/models/
+tools/bin/
+# 本地运行环境（MySQL/Nacos 的 docker 卷与配置）
+tools/nacos/
+tools/db.cnf
+
+# 运行期数据（音乐/封面/歌词/模型，fetch-tools.js --models 或管理端下载）
+backend/*/data/
+backend/data/
+data/
+*.log
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 调试产物
+.playwright-cli/
+cover-check.png
+
+# 个性化脚本与配置（不同开发者环境不同）
+scripts/
+
+
+# 微信小程序 AppSecret 等本地私密配置
+application-secret.yml
+
+# Docker 一键脚本与构建辅助（仓库外大文件，不进 Git）
+tools.zip
+docker-extras/
+application-local.yml

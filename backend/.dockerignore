@@ -1,0 +1,8 @@
+# 构建上下文瘦身：镜像里只需要 jar 与 docker-extras/
+data/
+tools/
+.idea/
+.playwright-cli/
+docs/
+scripts/
+*.log

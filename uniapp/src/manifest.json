@@ -1,0 +1,19 @@
+{
+  "name": "悦享音乐",
+  "appid": "",
+  "description": "MusicDreamer 悦享音乐微信小程序端",
+  "versionName": "1.0.0",
+  "versionCode": "100",
+  "transformPx": false,
+  "vueVersion": "3",
+  "locale": "zh-Hans",
+  "mp-weixin": {
+    "appid": "wx68f5b0f10527d852",
+    "setting": {
+      "urlCheck": false,
+      "es6": true,
+      "minified": true
+    },
+    "usingComponents": true
+  }
+}

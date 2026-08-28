@@ -1,0 +1,18 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  group_by: [alertname]
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 1h
+  receiver: email
+
+receivers:
+  - name: email
+    email_configs:
+      # 收件邮箱经 Mod_setting 的 alert_email_to 配置；此处演示环境用占位
+      - to: "admin@musicdream.com"
+        from: "alert@musicdream.com"
+        smarthost: "smtp.example.com:465"
+        require_tls: false

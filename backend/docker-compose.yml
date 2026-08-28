@@ -1,0 +1,188 @@
+# Music Dreamer 悦享音乐系统 —— 开发/演示环境编排
+# 用法：docker compose up -d mysql redis nacos   （仅起基础设施，服务本地 IDEA 跑）
+#       docker compose up -d                     （全量容器化）
+
+services:
+  mysql:
+    image: mysql:8.0
+    command: --character-set-server=utf8mb4
+    environment:
+      MYSQL_ROOT_PASSWORD: "123456"
+      MYSQL_DATABASE: music
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init:/docker-entrypoint-initdb.d
+    # 宿主机用 3307：本机 Windows 版 MySQL/Redis 常驻 3306/6379，避免端口打架；
+    # 容器网络内部仍走 3306，服务不受影响。宿主机连容器库用 127.0.0.1:3307。
+    ports: ["3307:3306"]
+    restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 10
+
+  redis:
+    image: redis:6
+    ports: ["6380:6379"]
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      retries: 10
+
+  nacos:
+    image: nacos/nacos-server:v2.2.3
+    environment:
+      MODE: standalone
+    # 9848 是 nacos 2.x 客户端 gRPC 端口：容器网络内互通无需映射，
+    # 但"宿主机 IDEA 跑服务"模式必须映射出来，否则注册不上（HTTP 8848 通也没用）
+    ports: ["8848:8848", "9848:9848"]
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8848/nacos || exit 1"]
+      interval: 15s
+      retries: 10
+
+  # ---------- 业务服务（统一模板镜像，环境变量区分模块） ----------
+  gateway:
+    build: { context: ., dockerfile: Dockerfile.service, args: { SVC: gateway } }
+    environment: { SVC: gateway, PORT: 8080, NACOS_ADDR: nacos:8848, REDIS_HOST: redis }
+    ports: ["8080:8080"]
+    depends_on: [nacos]
+    restart: always
+
+  mod-login:
+    build: { context: ., dockerfile: Dockerfile.service, args: { SVC: Mod_login } }
+    environment:
+      SVC: Mod_login
+      PORT: 8001
+      MYSQL_HOST: mysql
+      MYSQL_PASSWORD: "123456"
+      NACOS_ADDR: nacos:8848
+      REDIS_HOST: redis
+    depends_on:
+      mysql: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      nacos: { condition: service_healthy }
+    restart: always
+
+  mod-music:
+    build: { context: ., dockerfile: Dockerfile.service, args: { SVC: Mod_music } }
+    environment:
+      SVC: Mod_music
+      PORT: 8002
+      MYSQL_HOST: mysql
+      MYSQL_PASSWORD: "123456"
+      NACOS_ADDR: nacos:8848
+      REDIS_HOST: redis
+    depends_on:
+      mysql: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      nacos: { condition: service_healthy }
+    restart: always
+
+  mod-upload:
+    build: { context: ., dockerfile: Dockerfile.service, args: { SVC: Mod_upload } }
+    environment:
+      SVC: Mod_upload
+      PORT: 8007
+      STORAGE_ROOT: /data
+      MYSQL_HOST: mysql
+      MYSQL_PASSWORD: "123456"
+      NACOS_ADDR: nacos:8848
+    volumes: ["./data:/data"]
+    depends_on:
+      mysql: { condition: service_healthy }
+      nacos: { condition: service_healthy }
+    restart: always
+
+  mod-songlist:
+    build: { context: ., dockerfile: Dockerfile.service, args: { SVC: Mod_songList } }
+    environment:
+      SVC: Mod_songList
+      PORT: 8008
+      MYSQL_HOST: mysql
+      MYSQL_PASSWORD: "123456"
+      NACOS_ADDR: nacos:8848
+    depends_on:
+      mysql: { condition: service_healthy }
+      nacos: { condition: service_healthy }
+    restart: always
+
+  mod-like:
+    build: { context: ., dockerfile: Dockerfile.service, args: { SVC: Mod_like } }
+    environment:
+      SVC: Mod_like
+      PORT: 8009
+      MYSQL_HOST: mysql
+      MYSQL_PASSWORD: "123456"
+      NACOS_ADDR: nacos:8848
+      REDIS_HOST: redis
+    depends_on:
+      mysql: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      nacos: { condition: service_healthy }
+    restart: always
+
+  mod-setting:
+    build: { context: ., dockerfile: Dockerfile.service, args: { SVC: Mod_setting } }
+    environment:
+      SVC: Mod_setting
+      PORT: 8005
+      MYSQL_HOST: mysql
+      MYSQL_PASSWORD: "123456"
+      NACOS_ADDR: nacos:8848
+    depends_on:
+      mysql: { condition: service_healthy }
+      nacos: { condition: service_healthy }
+    restart: always
+
+  mod-media:
+    build: { context: ., dockerfile: Dockerfile.media }
+    environment:
+      SVC: Mod_media
+      PORT: 8010
+      STORAGE_ROOT: /data
+      MYSQL_HOST: mysql
+      MYSQL_PASSWORD: "123456"
+      NACOS_ADDR: nacos:8848
+    volumes:
+      # 直接挂宿主机 data/：音乐/封面/歌词/任务/模型/ACR密钥与 IDEA 模式共用一份，
+      # 避免下载到卷内 task 再跨设备移动到挂载目录失败
+      - ./data:/data
+      - ./tools:/opt/tools-host
+    depends_on:
+      mysql: { condition: service_healthy }
+      nacos: { condition: service_healthy }
+    restart: always
+
+  # ---------- 监控组 ----------
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./monitor/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitor/rules.yml:/etc/prometheus/rules.yml
+    ports: ["9090:9090"]
+    restart: always
+
+  grafana:
+    image: grafana/grafana
+    environment: { GF_SECURITY_ADMIN_PASSWORD: admin }
+    volumes: ["grafana_data:/var/lib/grafana"]
+    ports: ["3001:3000"]
+    restart: always
+
+  alertmanager:
+    image: prom/alertmanager
+    volumes: ["./monitor/alertmanager.yml:/etc/alertmanager/alertmanager.yml"]
+    ports: ["9093:9093"]
+    restart: always
+
+  sentinel-dashboard:
+    image: bladex/sentinel-dashboard
+    ports: ["8858:8858"]
+    restart: always
+
+volumes:
+  mysql_data: {}
+  grafana_data: {}

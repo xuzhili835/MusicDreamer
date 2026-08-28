@@ -1,0 +1,37 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - /etc/prometheus/rules.yml
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ["alertmanager:9093"]
+
+scrape_configs:
+  - job_name: musicdreamer
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          # 开发期：本地 IDEA 跑的服务用宿主机地址
+          - host.docker.internal:80
+          - host.docker.internal:8001
+          - host.docker.internal:8002
+          - host.docker.internal:8005
+          - host.docker.internal:8007
+          - host.docker.internal:8008
+          - host.docker.internal:8009
+          - host.docker.internal:8010
+        labels: { env: dev }
+      - targets:
+          # 容器化全量部署时：注释上面一段，启用下面一段
+          # - gateway:80
+          # - mod-login:8001
+          # - mod-music:8002
+          # - mod-setting:8005
+          # - mod-upload:8007
+          # - mod-songlist:8008
+          # - mod-like:8009
+          # - mod-media:8010

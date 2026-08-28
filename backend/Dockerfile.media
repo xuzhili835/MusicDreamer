@@ -1,0 +1,16 @@
+# Mod_media 媒体处理独立镜像（内置 Linux 版工具链）
+FROM eclipse-temurin:17-jre
+# apt 换国内源（ubuntu noble 在 sources.list.d/ubuntu.sources，jammy 及以下在 sources.list）
+RUN if [ -f /etc/apt/sources.list.d/ubuntu.sources ]; then \
+      sed -i 's|http://archive.ubuntu.com|https://mirrors.aliyun.com|g; s|http://security.ubuntu.com|https://mirrors.aliyun.com|g; s|http://cn.archive.ubuntu.com|https://mirrors.aliyun.com|g' /etc/apt/sources.list.d/ubuntu.sources; \
+    fi; \
+    sed -i 's|http://archive.ubuntu.com|https://mirrors.aliyun.com|g; s|http://security.ubuntu.com|https://mirrors.aliyun.com|g' /etc/apt/sources.list 2>/dev/null || true
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg curl ca-certificates && rm -rf /var/lib/apt/lists/*
+ENV TOOLS_DIR=/opt/tools
+RUN mkdir -p ${TOOLS_DIR} /data/music /data/image /data/lyric /data/task /models
+# yt-dlp 用 Linux 版：由 gh 加速镜像预置在 docker-extras/（tools/bin/yt-dlp.exe 是 Windows 版，容器跑不了）
+COPY --chmod=755 docker-extras/yt-dlp_linux ${TOOLS_DIR}/yt-dlp
+COPY Mod_media/target/*.jar /app.jar
+EXPOSE 8010
+ENTRYPOINT ["java", "-Xmx1g", "-Dfile.encoding=UTF-8", "-jar", "/app.jar"]

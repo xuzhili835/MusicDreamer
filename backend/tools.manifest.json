@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "description": "媒体处理工具清单：fetch-tools.js 按此拉取，全部统一安装到 tools/bin/（单一目录布局）。二进制不进 Git。",
+  "tools": [
+    {
+      "name": "yt-dlp",
+      "version": "latest",
+      "win": {
+        "url": "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe",
+        "mirror": "https://ghproxy.com/https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe",
+        "target": "bin/yt-dlp.exe",
+        "minBytes": 5000000
+      },
+      "linux": {
+        "url": "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux",
+        "target": "bin/yt-dlp",
+        "minBytes": 5000000
+      }
+    },
+    {
+      "name": "ffmpeg",
+      "version": "gyan.dev essentials",
+      "win": {
+        "url": "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip",
+        "target": "bin/",
+        "unzip": true,
+        "binary": [
+          "ffmpeg.exe",
+          "ffprobe.exe"
+        ],
+        "minBytes": 30000000
+      },
+      "note": "Linux 容器内经 Dockerfile.media 的 apt 安装，不走本清单"
+    },
+    {
+      "name": "whisper-cli",
+      "version": "whisper.cpp release",
+      "win": {
+        "url": "https://github.com/ggml-org/whisper.cpp/releases/latest/download/whisper-bin-x64.zip",
+        "target": "bin/",
+        "unzip": true,
+        "binary": [
+          "whisper-cli.exe",
+          "whisper.dll",
+          "ggml.dll",
+          "ggml-base.dll",
+          "ggml-cpu.dll",
+          "SDL2.dll"
+        ],
+        "minBytes": 1000000
+      },
+      "note": "统一装到 tools/bin/（含运行依赖 dll）；拉取失败时手动下载放入 tools/bin/"
+    }
+  ],
+  "models": [
+    {
+      "key": "small",
+      "label": "标准（唯一规格）",
+      "sizeText": "约466MB",
+      "url": "https://hf-mirror.com/ggerganov/whisper.cpp/resolve/main/ggml-small.bin",
+      "fallback": "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin"
+    }
+  ],
+  "infra": [
+    {
+      "name": "nacos",
+      "version": "2.2.3",
+      "note": "注册中心（无 Docker 机器的替代方案）：解压到 tools/nacos，用 scripts/nacos-start.cmd 拉起。客户端是 2.x gRPC，版本不能用 1.x",
+      "url": "https://github.com/alibaba/nacos/releases/download/2.2.3/nacos-server-2.2.3.zip",
+      "minBytes": 100000000
+    }
+  ]
+}

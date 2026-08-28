@@ -1,0 +1,60 @@
+server:
+  port: 8010
+
+spring:
+  config:
+    import: optional:classpath:application-local.yml
+  application:
+    name: mediaService8010
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/music?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_ADDR:localhost:8848}
+        enabled: ${NACOS_ENABLED:true}
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 520MB
+  task:
+    scheduling:
+      pool:
+        size: 4
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+  global-config:
+    db-config:
+      id-type: auto
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+media:
+  # 存储根目录默认值；实际生效值优先取设置服务 sys_setting 的 storage_root（60s 缓存），
+  # Feign 失败时才降级到这里，需与 Mod_upload 保持一致，否则 B 站导入歌曲播放 404。
+  storage-root: ${STORAGE_ROOT:D:/Desktop/MusicDreamer/backend/data}
+  tools-path: ${TOOLS_PATH:}
+  volume-target-lufs: -16
+  download-concurrency: 1
+  transcribe-concurrency: 2
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 30000
+  sentinel:
+    transport:
+      dashboard: ${SENTINEL_DASH:localhost:8858}
+      port: 8719
+

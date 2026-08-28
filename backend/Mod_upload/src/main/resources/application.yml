@@ -1,0 +1,46 @@
+server:
+  port: 8007
+
+spring:
+  config:
+    import: optional:classpath:application-local.yml
+  application:
+    name: uploadService8007
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/music?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_ADDR:localhost:8848}
+        enabled: ${NACOS_ENABLED:true}
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 520MB
+  task:
+    scheduling:
+      pool:
+        size: 4
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+  global-config:
+    db-config:
+      id-type: auto
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+upload:
+  # 直接读 yml（不走设置服务），需与 Mod_media 的 storage_root 保持一致，
+  # 否则 Mod_media 写入与 Mod_upload 读取落到不同目录，B 站导入必 404。
+  storage-root: ${STORAGE_ROOT:D:/Desktop/MusicDreamer/backend/data}
+

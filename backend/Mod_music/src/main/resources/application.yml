@@ -1,0 +1,48 @@
+server:
+  port: 8002
+
+spring:
+  config:
+    import: optional:classpath:application-local.yml
+  application:
+    name: musicService8002
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/music?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_ADDR:localhost:8848}
+        enabled: ${NACOS_ENABLED:true}
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 520MB
+  task:
+    scheduling:
+      pool:
+        size: 4
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+  global-config:
+    db-config:
+      id-type: auto
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: 6379
+  sentinel:
+    transport:
+      dashboard: ${SENTINEL_DASH:localhost:8858}
+      port: 8719
+

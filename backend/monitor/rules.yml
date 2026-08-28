@@ -1,0 +1,42 @@
+groups:
+  - name: musicdreamer-business
+    rules:
+      - alert: ServiceDown
+        expr: up{job="musicdreamer"} == 0
+        for: 30s
+        labels: { severity: critical }
+        annotations:
+          summary: "服务不可达 {{ $labels.instance }}"
+          description: "业务服务持续 30 秒无法抓取指标，可能已宕机。"
+
+      - alert: TaskQueueBacklog
+        expr: media_task_queue_size > 10
+        for: 2m
+        labels: { severity: warning }
+        annotations:
+          summary: "媒体任务队列积压"
+          description: "队列积压超过 10 个持续 2 分钟，任务进度变慢，考虑扩容 Mod_media。"
+
+      - alert: TaskFailureSpike
+        expr: rate(media_task_total{status="FAILED"}[5m]) > 0.2
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "媒体任务失败率过高"
+          description: "任务失败率超 20% 持续 5 分钟，检查外部站点状态与网络。"
+
+      - alert: ToolUnhealthy
+        expr: media_tool_alive == 0
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "媒体工具不可用"
+          description: "yt-dlp/ffmpeg/whisper 工具健康检查失败持续 5 分钟，触发工具自动更新或人工修复。"
+
+      - alert: HighJvmGc
+        expr: rate(jvm_gc_pause_seconds_count[5m]) > 1
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "GC 频率过高 {{ $labels.instance }}"
+          description: "GC 暂停每秒超过 1 次，页面响应可能变慢，考虑重启或扩容内存。"

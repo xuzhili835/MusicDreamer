@@ -1,0 +1,46 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: musicGateway
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_ADDR:localhost:8848}
+        enabled: ${NACOS_ENABLED:true}
+    gateway:
+      discovery:
+        locator:
+          enabled: false
+      routes:
+        - id: login
+          uri: lb://loginService8001
+          predicates: [ "Path=/api/v1/user/**" ]
+        - id: music
+          uri: lb://musicService8002
+          predicates: [ "Path=/api/v1/song/**,/api/v1/search/**,/api/v1/music/**,/api/v1/comment/**,/api/v1/recommend/**,/api/v1/report/**" ]
+        - id: upload
+          uri: lb://uploadService8007
+          predicates: [ "Path=/api/v1/upload/**,/data/**" ]
+        - id: songlist
+          uri: lb://songListService8008
+          predicates: [ "Path=/api/v1/playlist/**,/api/v1/album/**" ]
+        - id: like
+          uri: lb://likeService8009
+          predicates: [ "Path=/api/v1/collect/**,/api/v1/like/**" ]
+        - id: media
+          uri: lb://mediaService8010
+          predicates: [ "Path=/api/v1/media/**,/ws/**" ]
+        - id: setting
+          uri: lb://settingService8005
+          predicates: [ "Path=/api/v1/setting/**" ]
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus

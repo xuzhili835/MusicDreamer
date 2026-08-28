@@ -1,0 +1,56 @@
+server:
+  port: 8001
+
+spring:
+  application:
+    name: loginService8001
+  # 微信小程序 AppSecret 走 gitignored 的 application-secret.yml（wx.app-secret）或环境变量 WX_APP_SECRET
+  config:
+    import: optional:classpath:application-secret.yml,optional:classpath:application-local.yml
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/music?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+  mail:
+    host: ${MAIL_HOST:smtp.qq.com}
+    port: ${MAIL_PORT:465}
+    username: ${MAIL_USER:}
+    password: ${MAIL_PASS:}
+    properties:
+      mail.smtp.ssl.enable: true
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_ADDR:localhost:8848}
+        enabled: ${NACOS_ENABLED:true}
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 520MB
+  task:
+    scheduling:
+      pool:
+        size: 4
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+  global-config:
+    db-config:
+      id-type: auto
+
+# 邮箱激活验证开关：false=注册即可登录（默认）；true=注册后需邮件激活才能登录
+# 开启时需同时配置 spring.mail（MAIL_HOST/MAIL_USER/MAIL_PASS）
+mail:
+  activate-enabled: ${MAIL_ACTIVATE_ENABLED:false}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus

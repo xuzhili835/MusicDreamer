@@ -1,0 +1,1059 @@
+/* ============================================================
+   Music Dreamer 全局样式「RhythmoTune V2」
+   以根目录 preview-v2.html 为绝对基础：
+   夜黑底 + 胶片颗粒 / 橙=品牌选中 / 青=播放态 / 洋红=会员
+   令牌见 theme.css；各视图细节在自身 <style scoped> 内
+   ============================================================ */
+
+/* ---------- WeUI 反馈层适配 ---------- */
+/* weui 轻提示（toast）自带一层全屏透明遮罩（.weui-mask_transparent），
+   提示显示的 1.5s 内会拦住整页所有点击——表现为"弹窗卡操作"。
+   令透明遮罩穿透鼠标；确认/告知框用的深色 .weui-mask 不受影响（本就该模态）。 */
+.weui-mask_transparent {
+  pointer-events: none !important;
+}
+.weui-toast {
+  pointer-events: none !important;
+}
+/* 确认/告知框回到屏幕正中（用户要求），入场改为缩放淡入；
+   居中用 transform 定位，入场动画改用独立 translate 属性，二者不冲突。
+   注意：weui 关闭靠给 .weui-animate-fade-out 换动画并等 animationend 移除 DOM，
+   因此入场动画只能挂在 fade-in 类上、且排除 fade-out 状态——否则关闭动画被顶掉、弹窗永久卡死。 */
+.weui-dialog {
+  top: 50% !important;
+  transform: translate(0, -50%) !important;
+}
+.weui-dialog.weui-animate-fade-in:not(.weui-animate-fade-out) {
+  animation: md-dialog-pop 0.26s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+@keyframes md-dialog-pop {
+  from {
+    opacity: 0;
+    translate: 0 -14px;
+    scale: 0.97;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+  }
+}
+/* 弹窗按钮：明确的可点击反馈（hover 抬起 + 主按钮品牌色填充） */
+.weui-dialog__btn {
+  position: relative;
+  border-radius: 10px !important;
+  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease, translate 0.18s ease;
+}
+.weui-dialog__btn:hover {
+  background: rgba(255, 107, 26, 0.1);
+  color: var(--accent, #ff6b1a) !important;
+  translate: 0 -1px;
+}
+.weui-dialog__btn:active {
+  translate: 0 0;
+  background: rgba(255, 107, 26, 0.18);
+}
+.weui-dialog__btn_primary {
+  font-weight: 700;
+}
+.weui-dialog__btn_primary:hover {
+  background: var(--accent, #ff6b1a);
+  color: #fff !important;
+  box-shadow: 0 6px 18px rgba(255, 107, 26, 0.35);
+}
+/* 轻提示：顶部居中的长方形横条（登录成功/已退出等），完全穿透不挡操作 */
+.weui-toast {
+  top: 0 !important;
+  bottom: auto !important;
+  left: 50% !important;
+  margin-top: 18px !important;
+  transform: translate(-50%, 0) !important;
+  min-width: 300px !important;
+  max-width: min(82vw, 520px) !important;
+  width: auto !important;
+  border-radius: 12px !important;
+  padding: 13px 26px !important;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* ---------- 基础 ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text);
+  background-color: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+h1, h2, h3, h4, p {
+  margin: 0;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+input,
+textarea,
+select {
+  font: inherit;
+  color: var(--text);
+}
+
+:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(70, 52, 32, 0.2);
+  border-radius: 5px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(70, 52, 32, 0.32);
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------- 通用工具 ---------- */
+.muted {
+  color: var(--text-muted);
+}
+
+/* 封面占位渐变（c1–c6 与 preview-v2 一致） */
+.c1 { background: linear-gradient(135deg, #ff512f, #dd2476); }
+.c2 { background: linear-gradient(135deg, #00c9ff, #92fe9d); }
+.c3 { background: linear-gradient(135deg, #7b2ff7, #f107a3); }
+.c4 { background: linear-gradient(135deg, #f7971e, #ffd200); }
+.c5 { background: linear-gradient(135deg, #12c2e9, #c471ed, #f64f59); }
+.c6 { background: linear-gradient(135deg, #0f2027, #2c5364); }
+
+/* ---------- 按钮 ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 9px 18px;
+  border-radius: var(--radius-pill);
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  transition: transform 0.15s, box-shadow 0.2s, background 0.2s, border-color 0.2s;
+  user-select: none;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+  box-shadow: var(--glow-accent);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  border-color: rgba(0, 0, 0, 0.28);
+  background: var(--glass);
+}
+
+.btn-danger {
+  background: transparent;
+  color: var(--error);
+  border-color: rgba(255, 90, 95, 0.4);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: var(--error-soft);
+}
+
+/* ============================================================
+   内容页通用骨架（WeUI 分组：灰底 + 纸白卡 + 控制台读数）
+   —— 所有二级页面共用，保证节奏一致
+   ============================================================ */
+
+/* 频道标签式页头：mono eyebrow（频道号）+ display 大标题 + 右侧 mono 统计 */
+.page-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 30px 0 22px;
+}
+.page-head .eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.page-head .eyebrow::before {
+  content: "";
+  width: 22px;
+  height: 1px;
+  background: var(--accent);
+}
+.page-head h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(24px, 2.4vw, 32px);
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+.page-head .stat {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* 分节标题：签名波形刻度（三根小柱）+ 文本 —— 声音母题贯穿全站 */
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 28px 0 14px;
+}
+.section-title::before {
+  content: "";
+  width: 15px;
+  height: 13px;
+  flex-shrink: 0;
+  background:
+    linear-gradient(var(--accent), var(--accent)) 0 100% / 3px 55% no-repeat,
+    linear-gradient(var(--cyan), var(--cyan)) 6px 100% / 3px 100% no-repeat,
+    linear-gradient(var(--accent), var(--accent)) 12px 100% / 3px 40% no-repeat;
+}
+.section-title .grow {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* 纸白卡容器 */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+/* 歌单卡（我的歌单 / 收藏的歌单 通用） */
+.pl-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+}
+.pl-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.pl-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(0, 0, 0, 0.14);
+}
+.pl-card .pl-cover {
+  aspect-ratio: 1 / 1;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 30px;
+  overflow: hidden;
+  /* GenCover 是 absolute inset:0，父盒必须自身定位，否则会挣脱卡片铺满整个页面 */
+  position: relative;
+}
+.pl-card .pl-name {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pl-card .pl-meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* 空状态：声音母题的静音提示 —— 邀请行动，不是叹气 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 64px 0 48px;
+  text-align: center;
+}
+.empty-state h3 {
+  font-size: 16px;
+  font-weight: 700;
+}
+.empty-state p {
+  color: var(--text-muted);
+  font-size: 13.5px;
+  max-width: 340px;
+}
+.empty-state .btn {
+  margin-top: 12px;
+}
+
+/* ============================================================
+   应用外壳：「日光房」一块连续画布
+   上半 = 侧栏 + 内容（左上品牌橙日光、右下播放青天光），
+   下缘 = 全宽播放条压住整个窗口底部（见 PlayerBar.vue）
+   ============================================================ */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.main-container {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 232px 1fr;
+  background:
+    radial-gradient(1100px 720px at -6% -14%, rgba(255, 141, 66, 0.16), transparent 56%),
+    radial-gradient(950px 680px at 106% 116%, rgba(6, 153, 184, 0.09), transparent 60%),
+    var(--bg);
+}
+
+.app-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* 内容行：左=路由视图（.content），右=内嵌歌词栏（LyricsPanel）；
+   歌词栏展开时以 flex 挤入而非浮层遮盖，窄屏时自身降级为覆盖层 */
+.content-row {
+  flex: 1;
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  position: relative;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.content-body {
+  flex: 1;
+  padding: 0 36px 24px;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  /* 内容再宽也绝不出现横向滚动条（如 hero 轮播两侧的渐隐卡），溢出直接裁掉 */
+  overflow-x: hidden;
+}
+
+/* ---------- 顶部：搜索 + 用户（preview-v2 topbar） ---------- */
+.content-top {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 22px 36px 18px;
+}
+
+.search-container {
+  flex: 1;
+  max-width: 340px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 10px 18px;
+  color: var(--text-muted);
+  transition: border-color 0.2s;
+}
+
+.search-container:focus-within {
+  border-color: rgba(255, 107, 26, 0.55);
+}
+
+/* 听歌识曲入口：搜索框右侧的圆钮，与搜索框同一视觉层级 */
+.recog-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 37px;
+  height: 37px;
+  margin-left: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.recog-btn:hover {
+  border-color: rgba(255, 107, 26, 0.55);
+  color: var(--accent, #ff6b1a);
+}
+
+.search-container .search-icon {
+  flex-shrink: 0;
+}
+
+.search-container input {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.search-container input::placeholder {
+  color: var(--text-faint);
+}
+
+.top-user {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 5px 10px 5px 5px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.user-chip:hover {
+  background: var(--glass);
+}
+
+.avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--magenta));
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.avatar-inner {
+  font-weight: 700;
+  font-size: 14px;
+  color: #fff;
+}
+
+.user-chip .who {
+  text-align: right;
+  line-height: 1.35;
+}
+
+.user-chip .nick {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 600;
+  max-width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.role-tag {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--cyan);
+}
+
+.role-tag.role-listener {
+  color: var(--text-muted);
+}
+
+.role-tag.role-admin {
+  color: var(--magenta);
+}
+
+/* ============================================================
+   侧边栏（preview-v2 sidebar：橙色 logo + 细线分区 + 底部歌单）
+   ============================================================ */
+.sidebar {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 26px 16px;
+  overflow-y: auto;
+  /* 无底色、无边线：与内容共用日光画布，靠环境光区分区域 */
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  margin-bottom: 40px;
+}
+
+.brand-logo {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: var(--gradient-accent);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  box-shadow: var(--glow-accent);
+}
+/* 品牌口 mark：三根等高白柱（equalizer） */
+.brand-logo::after {
+  content: "";
+  width: 15px;
+  height: 13px;
+  background:
+    linear-gradient(#fff, #fff) 0 100% / 3px 55% no-repeat,
+    linear-gradient(#fff, #fff) 6px 100% / 3px 100% no-repeat,
+    linear-gradient(#fff, #fff) 12px 100% / 3px 40% no-repeat;
+}
+
+.brand-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: -0.02em;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.brand-name em {
+  font-style: normal;
+  color: var(--text);
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  font-size: 14.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s;
+}
+
+.nav-item:hover {
+  color: var(--text);
+  background: var(--glass);
+}
+
+.nav-item.active {
+  color: var(--text);
+  background: var(--accent-soft);
+  box-shadow: inset 2.5px 0 0 var(--accent);
+}
+
+.nav-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.nav-icon :deep(svg),
+.nav-icon svg {
+  width: 19px;
+  height: 19px;
+}
+
+.nav-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playlist-trigger {
+  border: 0;
+  text-align: left;
+}
+.expand-icon {
+  margin-left: auto;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+.expand-icon.open {
+  transform: rotate(180deg);
+}
+.playlist-children {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 2px 0 6px 32px;
+  padding-left: 12px;
+  border-left: 1px solid var(--border);
+}
+.playlist-link,
+.playlist-manage {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 6px 4px;
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+.playlist-link:hover,
+.playlist-link.active,
+.playlist-manage:hover {
+  color: var(--text);
+}
+.playlist-link.active {
+  color: var(--accent);
+}
+.playlist-link span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.playlist-link .dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  flex-shrink: 0;
+}
+/* 我的歌单行：主区域是导航链接，右侧小箭头单独负责展开下拉 */
+.playlist-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.playlist-row .playlist-trigger {
+  flex: 1;
+  min-width: 0;
+}
+.pl-expand {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-faint);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.pl-expand:hover {
+  color: var(--text);
+  background: var(--surface-2);
+}
+.pl-expand.open {
+  color: var(--accent);
+}
+.pl-expand svg {
+  transition: transform 0.2s ease;
+}
+.pl-expand.open svg {
+  transform: rotate(180deg);
+}
+/* 收藏的别人歌单：♥ 图标占 dot 同位，洋红色示区分 */
+.playlist-link .fav-heart {
+  width: 18px;
+  height: 18px;
+  padding: 3px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  color: var(--magenta);
+  opacity: 0.75;
+}
+.playlist-link:hover .fav-heart,
+.playlist-link.active .fav-heart {
+  opacity: 1;
+}
+.playlist-manage {
+  color: var(--text-faint);
+}
+
+.nav-section-title {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  font-weight: 600;
+  margin: 18px 14px 10px;
+}
+
+.side-pl {
+  margin-top: auto;
+  padding: 0 12px;
+}
+
+.side-pl a {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 7px 0;
+  color: var(--text-muted);
+  font-size: 13.5px;
+  transition: color 0.2s;
+}
+
+.side-pl a:hover {
+  color: var(--text);
+}
+
+.side-pl a::after {
+  content: '';
+  flex: 1;
+}
+
+
+/* ============================================================
+   认证页（登录 / 注册 / 激活）：modal 式整页
+   ============================================================ */
+.app-bare,
+.modal-overlay {
+  min-height: 100vh;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 0%, rgba(255, 107, 26, 0.07), transparent 70%),
+    var(--bg-deep);
+  z-index: 100;
+}
+
+.modal-content {
+  position: relative;
+  width: 100%;
+  max-width: 416px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 26px 32px 28px;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  animation: v2-rise 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+.modal-header {
+  padding: 0 0 12px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+
+.modal-header h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 23px;
+  letter-spacing: -0.01em;
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-modal .modal-content {
+  max-width: 420px;
+}
+
+.back-home {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  transition: color 0.2s;
+}
+
+.back-home:hover {
+  color: var(--text);
+}
+
+/* 认证卡签名：顶部满宽波形「电台信号」+ 控制台标签 */
+.auth-wave {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 46px;
+  margin: -26px -32px 22px;
+  padding: 0 32px;
+  background: linear-gradient(180deg, var(--accent-soft), transparent);
+}
+.auth-wave i {
+  flex: 1;
+  height: 100%;
+  border-radius: 2px 2px 0 0;
+  background: var(--accent);
+  opacity: 0.85;
+  transform: scaleY(0.3);
+  transform-origin: bottom;
+}
+.auth-wave i:nth-child(4n+1) {
+  background: var(--cyan);
+}
+
+.auth-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 6px;
+}
+.auth-eyebrow::before {
+  content: "";
+  width: 18px;
+  height: 1px;
+  background: var(--accent);
+}
+
+.app-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 17px;
+  letter-spacing: -0.01em;
+}
+.app-slogan {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.input-group label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.input-group input {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 11px 14px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.input-group input:focus {
+  border-color: var(--accent);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.input-group input::placeholder {
+  color: var(--text-faint);
+}
+
+.download-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+  accent-color: var(--accent);
+}
+
+/* ---------- 入场动画（与 preview-v2 rise 一致） ---------- */
+@keyframes v2-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- 响应式（preview-v2 断点） ---------- */
+@media (max-width: 840px) {
+  .main-container {
+    grid-template-columns: 64px 1fr;
+  }
+
+  .content-top,
+  .content-body {
+    padding-inline: 18px;
+  }
+
+  .search-container {
+    max-width: none;
+  }
+
+  .user-chip .who {
+    display: none;
+  }
+
+  /* 窄屏侧栏收缩为纯图标栏（preview-v2） */
+  .sidebar {
+    padding: 22px 10px;
+  }
+
+  .brand {
+    justify-content: center;
+    padding: 0;
+  }
+
+  .brand-text,
+  .nav-text,
+  .nav-section-title,
+  .side-pl {
+    display: none;
+  }
+
+  .nav-item {
+    justify-content: center;
+    padding: 13px 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .content-top {
+    gap: 10px;
+    padding: 14px 12px 12px;
+  }
+  .content-body {
+    padding-inline: 12px;
+  }
+  .top-user .btn {
+    padding-inline: 12px !important;
+  }
+}
+
+/* bug72：weui 确认框（退出登录等）点击后残留浏览器默认聚焦框。
+   鼠标点击时去掉，键盘 Tab 聚焦仍保留高亮，不牺牲可达性 */
+.weui-dialog__btn:focus {
+  outline: none;
+}
+.weui-dialog__btn:focus-visible {
+  outline: 2px solid var(--accent, #ff6b1a);
+  outline-offset: -2px;
+}

@@ -1,0 +1,51 @@
+# 工作区级排除(backend/frontend/uniapp 各自还有子级 .gitignore,作用域内同样生效)
+
+# 密钥/私密配置,绝不入库
+小程序密钥.txt
+application-secret.yml
+tools/db.cnf
+
+# 调试/临时产物
+.playwright-cli/
+temp-ui-check/
+*.log
+
+# 嵌套仓库 .git 临时挪开时的备份名
+.git.bak
+
+# 系统/IDE
+.DS_Store
+Thumbs.db
+.idea/
+*.iml
+.vscode/
+
+# 用户本地工具包(363MB,HANDOFF 注明不进版本库)
+backend/tools.zip
+application-local.yml
+
+# 课程管理表格(含成员个人信息,不入公开仓库;本地保留)
+Music_Dreamer悦享音乐系统-项目日程计划.xlsx
+悦享音乐.xlsx
+
+# ===== 公开仓库边界:课设文档与内部管理文件一律不入库(2026-08-28 返工) =====
+# 课程交付物(docx/md 同源版都有查重风险)
+*.docx
+# 内部交接/测试/分工/演示材料
+HANDOFF.md
+回归校准单.md
+测试报告-*.md
+test-report-*.md
+项目分工与进度.md
+听歌识曲设计文档.md
+前端视觉设计说明.md
+演示脚本-*.md
+课设微服务详细设计文档.md
+需求规格说明书.md
+MusicDreamer悦享音乐系统详细设计文档.md
+bug.txt
+# 临时预览/截图/调试产物
+preview*.html
+screenshots/
+docs/
+backend/docs/

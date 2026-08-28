@@ -1,0 +1,170 @@
+/* ============================================================
+   Music Dreamer 设计令牌 —— 「RhythmoTune · Daylight」
+   基底切换为 WeUI 浅色（原生 weui.css）：
+     纸白 cell + 1px 淡墨细线 + 轻投影，无胶片颗粒/无夜黑
+   品牌橙保留为唯一强调色（橙底配深墨字，保证对比度）；
+   播放青加深以在白底可读；会员洋红保留。
+   变量名与旧「V2」完全一致 —— 各视图无需改引用即可整体转浅色。
+   ============================================================ */
+
+:root {
+  /* ---- 色彩令牌：「日光房」暖画布 ----
+     底色不是纯白/冷灰，而是带暖墨的纸感画布；
+     深度来自环境光（见 app.css 外壳渐变）与暖影，不靠白块拼贴 */
+  --bg: #f1eee8;            /* 暖灰纸底：日光墙面 */
+  --bg-deep: #e6e2d9;       /* 更深一档：遮罩 / 渐变尾 */
+  --surface: #fffefa;       /* 卡面：暖白（非蓝白） */
+  --surface-2: #f7f5ef;     /* 次级面板 */
+  --surface-hover: #efede5; /* hover 底 */
+  --text: rgba(42, 35, 28, 0.92);
+  --text-muted: rgba(42, 35, 28, 0.55);
+  --text-faint: rgba(42, 35, 28, 0.34);
+  --border: rgba(92, 72, 50, 0.12);
+  --border-strong: rgba(92, 72, 50, 0.2);
+
+  /* ---- 强调色：品牌橙 / 播放青 / 会员洋红 ---- */
+  --accent: #ff6b1a;
+  --accent-hover: #f75f0a;
+  --accent-soft: rgba(255, 107, 26, 0.12);
+  --accent-text: #1a1205;   /* 橙底上的深墨字（白字对比不足，保留深字） */
+  --cyan: #0699b8;          /* 播放态：加深，白底可读 */
+  --cyan-soft: rgba(6, 153, 184, 0.12);
+  --magenta: #e11d92;       /* 会员/收藏：略加深以贴合白底 */
+  --magenta-soft: rgba(225, 29, 146, 0.10);
+  --gradient-accent: linear-gradient(135deg, #ff6b1a, #e11d92);
+  --gradient-cool: linear-gradient(135deg, #06b6d4, #22c55e);
+
+  --success: #07c160;       /* WeUI 绿 */
+  --success-soft: rgba(7, 193, 96, 0.12);
+  --error: #fa5151;         /* WeUI 红 */
+  --error-soft: rgba(250, 81, 81, 0.10);
+  --warning: #fa9d3b;       /* WeUI 橙黄 */
+  --warning-soft: rgba(250, 157, 59, 0.14);
+  --info: #10aeff;          /* WeUI 蓝 */
+  --info-soft: rgba(16, 174, 255, 0.12);
+
+  /* ---- 悬浮 / 半透明（暖墨叠色） ---- */
+  --glass: rgba(66, 50, 33, 0.04);
+  --glass-strong: rgba(66, 50, 33, 0.07);
+  --glass-border: rgba(92, 72, 50, 0.12);
+  --blur: 20px;
+
+  /* ---- 阴影：暖褐投影（物体落在暖画布上的影子） ---- */
+  --shadow-sm: 0 1px 3px rgba(88, 66, 40, 0.07), 0 1px 2px rgba(88, 66, 40, 0.05);
+  --shadow-md: 0 6px 18px rgba(88, 66, 40, 0.1);
+  --shadow-lg: 0 16px 40px rgba(88, 66, 40, 0.16);
+  --glow-accent: 0 6px 20px rgba(255, 107, 26, 0.28);
+  --glow-cool: 0 6px 20px rgba(6, 153, 184, 0.22);
+  --glow-magenta: 0 6px 20px rgba(225, 29, 146, 0.22);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-pill: 999px;
+
+  /* ---- 字体：Manrope 正文 / Unbounded 展示 / JetBrains Mono 等宽 ---- */
+  --font-body: 'Manrope', -apple-system, 'HarmonyOS Sans SC', 'MiSans',
+    'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-display: 'Unbounded', 'Manrope', 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Cascadia Mono', Consolas, 'Courier New', monospace;
+
+  /* ---- WeUI 原生令牌接管：品牌绿 → 品牌橙，链接/对话框同源 ---- */
+  --weui-BRAND: #ff6b1a;
+  --weui-LINK: #ff6b1a;
+  --weui-LINK-90: #f75f0a;
+  --weui-DIALOG-LINE-COLOR: var(--border);
+  --weui-BG-0: var(--bg);
+  --weui-BG-2: var(--surface);
+
+  /* ---- Element Plus 浅色变量覆盖（主色 = 品牌橙） ---- */
+  --el-color-primary: var(--accent);
+  --el-color-primary-dark-2: #e85d10;
+  --el-color-primary-light-3: #ff9450;
+  --el-color-primary-light-5: #ffb480;
+  --el-color-primary-light-7: #ffd3b3;
+  --el-color-primary-light-8: #ffe3cc;
+  --el-color-primary-light-9: #fff2e6;
+
+  --el-color-success: var(--success);
+  --el-color-danger: var(--error);
+  --el-color-error: var(--error);
+  --el-color-warning: var(--warning);
+  --el-color-info: #909399;
+
+  --el-bg-color: var(--surface);
+  --el-bg-color-overlay: var(--surface);
+  --el-bg-color-page: var(--bg);
+
+  --el-text-color-primary: var(--text);
+  --el-text-color-regular: rgba(0, 0, 0, 0.72);
+  --el-text-color-secondary: var(--text-muted);
+  --el-text-color-placeholder: var(--text-faint);
+  --el-text-color-disabled: rgba(0, 0, 0, 0.25);
+
+  --el-border-color: rgba(0, 0, 0, 0.16);
+  --el-border-color-light: rgba(0, 0, 0, 0.12);
+  --el-border-color-lighter: rgba(0, 0, 0, 0.08);
+  --el-border-color-extra-light: rgba(0, 0, 0, 0.05);
+  --el-border-color-dark: rgba(0, 0, 0, 0.22);
+
+  --el-fill-color: var(--surface-2);
+  --el-fill-color-light: var(--surface-2);
+  --el-fill-color-lighter: #faf8f2;
+  --el-fill-color-blank: var(--surface);
+  --el-fill-color-dark: var(--surface-hover);
+  --el-fill-color-darker: #eae7df;
+
+  --el-mask-color: rgba(246, 243, 237, 0.72);
+
+  --el-border-radius-base: 8px;
+  --el-border-radius-small: 6px;
+  --el-border-radius-round: 999px;
+
+  --el-font-family: var(--font-body);
+
+  --el-box-shadow: var(--shadow-md);
+  --el-box-shadow-light: var(--shadow-sm);
+}
+
+/* WeUI 原生令牌接管必须落在 body[data-weui-theme] 上：
+   weui.css 把浅色默认值写在 body 选择器（0,0,1），:root 的继承值会被其覆盖，
+   因此这里用更高特异度的 body[data-weui-theme='light']（0,1,1）确保品牌橙生效。 */
+body[data-weui-theme='light'] {
+  --weui-BRAND: #ff6b1a;
+  --weui-LINK: #ff6b1a;
+  --weui-LINK-90: #f75f0a;
+  --weui-DIALOG-LINE-COLOR: var(--border);
+}
+
+/* EP 组件细节修正（浅色） */
+.el-button--primary {
+  --el-button-text-color: var(--accent-text);
+  --el-button-hover-text-color: var(--accent-text);
+}
+
+.el-card {
+  --el-card-bg-color: var(--surface);
+  border-color: var(--border);
+}
+
+/* 工具类 */
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.display {
+  font-family: var(--font-display);
+}
+
+/* 弹窗遮罩（bug6）：默认黑灰压场太重，改浅暖色 + 毛玻璃，
+ * 与整站浅色基调一致；el-overlay 可能挂在 body 下，必须全局声明 */
+.el-overlay {
+  background-color: rgba(246, 243, 237, 0.68);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+.el-overlay .el-dialog {
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}

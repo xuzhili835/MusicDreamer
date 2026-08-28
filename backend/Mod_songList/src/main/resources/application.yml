@@ -1,0 +1,48 @@
+server:
+  port: 8008
+
+spring:
+  config:
+    import: optional:classpath:application-local.yml
+  flyway:
+    enabled: true
+    # 现有库已由 init.sql 手工建表：baseline 后从 V1 起应用（V1 为幂等建表）
+    baseline-on-migrate: true
+    baseline-version: 0
+    locations: classpath:db/migration
+    validate-on-migrate: false  # 开发环境：禁用 checksum 验证
+  application:
+    name: songListService8008
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/music?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_ADDR:localhost:8848}
+        enabled: ${NACOS_ENABLED:true}
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 520MB
+  task:
+    scheduling:
+      pool:
+        size: 4
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+  global-config:
+    db-config:
+      id-type: auto
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+

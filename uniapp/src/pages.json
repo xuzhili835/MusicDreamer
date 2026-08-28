@@ -1,0 +1,18 @@
+{
+  "pages": [
+    {
+      "path": "pages/home/home",
+      "style": { "navigationBarTitleText": "悦享音乐" }
+    },
+    {
+      "path": "pages/login/login",
+      "style": { "navigationBarTitleText": "登录", "navigationStyle": "custom" }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "悦享音乐",
+    "navigationBarBackgroundColor": "#ffffff",
+    "backgroundColor": "#f7f4f8"
+  }
+}
